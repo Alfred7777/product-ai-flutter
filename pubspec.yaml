@@ -7,8 +7,11 @@ environment:
   sdk: ^3.9.2
 
 dependencies:
+  flutter_bloc: ^9.1.1
+  bloc: ^9.1.0
+  equatable: ^2.0.0
   flutter:
-    sdk: flutter
+    sdk: flutter 
 
 dev_dependencies:
   flutter_test:
