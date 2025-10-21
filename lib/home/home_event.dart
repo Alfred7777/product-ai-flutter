@@ -8,8 +8,19 @@ class HomeEvent extends Equatable {
 }
 
 class FetchProducts extends HomeEvent {
-  const FetchProducts();
+  final String textFilter;
+
+  const FetchProducts(this.textFilter);
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [textFilter];
+}
+
+class AnalyzeOrder extends HomeEvent {
+  final String order;
+
+  const AnalyzeOrder(this.order);
+
+  @override
+  List<Object> get props => [order];
 }

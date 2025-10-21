@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:product_ai_flutter/repositories/product_repository.dart';
@@ -20,21 +21,43 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   final ProductRepository productRepository = ProductRepository();
   late HomeBloc _homeBloc;
   late TabController _tabController;
+  late TextEditingController _textFilterController;
+
+  // ignore: unused_field
+  late Timer _debounce;
+  final int _debouncetime = 500;
 
   @override
   void initState() {
     super.initState();
-    _homeBloc = HomeBloc(
-      productRepository,
-    );
+    _homeBloc = HomeBloc(productRepository);
 
     _tabController = TabController(length: 2, vsync: this);
+
+    _textFilterController = TextEditingController();
+    _textFilterController.addListener(_onQueryChanged);
   }
 
   @override
   void dispose() {
     _homeBloc.close();
     super.dispose();
+  }
+
+  void _fetchProducts() {
+    _homeBloc.add(
+      FetchProducts(
+        _textFilterController.text.length >= 2 ? _textFilterController.text : '',
+      ),
+    );
+  }
+
+  void _onQueryChanged() {
+    _debounce = Timer(Duration(milliseconds: _debouncetime), () {
+      if (_homeBloc.state is HomeReady) {
+        _fetchProducts();
+      }
+    });
   }
 
   @override
@@ -70,18 +93,30 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 );
               }
             },
+            buildWhen: (prevState, currState) {
+              if (currState is HomeError) {
+                return false;
+              }
+              if (prevState is HomeReady || currState is HomeLoading) {
+                return false;
+              }
+              return true;
+            },
             builder: (context, state) {
               if (state is HomeUninitialized) {
-                _homeBloc.add(FetchProducts());
+                _fetchProducts();
               }
               if (state is HomeReady) {
                 return TabBarView(
                   controller: _tabController,
                   children: [
                     ProductsTab(
+                      queryTextController: _textFilterController,
                       productList: state.productList,
                     ),
-                    OrderTab(),
+                    OrderTab(
+                      orderList: state.orderList,
+                    ),
                   ],
                 );
               } 
