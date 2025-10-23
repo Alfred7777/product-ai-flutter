@@ -29,12 +29,16 @@ class ProductRepository {
   }
 
   Future<List<OrderItem>> analyzeOrder(String order, List<Product> productList) async {
+    if (order.isEmpty) {
+      throw Exception(AppStrings.kEmptyOrderError);
+    }
+
     final bool isConnected = await InternetConnection().hasInternetAccess;
     if (!isConnected) {
       throw Exception(AppStrings.kInternetAccessError);
     }
 
-    final String googleApiKey;
+    String googleApiKey;
     try {
       Map<String, dynamic> configJson = jsonDecode(await rootBundle.loadString('config/app_config.json'));
       googleApiKey = configJson['GOOGLE_API_KEY'];
@@ -51,9 +55,29 @@ class ProductRepository {
       body: jsonEncode({
         "contents": [{
           "parts": [{
-            "text": "Analyze the following order and return a JSON array of products with their names and quantities: $order"
+            "text": "Analyze the following order and return a array of products in JSON format with their names and quantities: $order"
           }]
-        }]
+        }],
+        "generationConfig": {
+          "responseMimeType": "application/json",
+          "responseSchema": {
+            "type": "ARRAY",
+            "items": {
+              "type": "OBJECT",
+              "properties": {
+                "title": {
+                  "type": "STRING",
+                  "description": "The name of the product."
+                },
+                "quantity": {
+                  "type": "INTEGER",
+                  "description": "The quantity of the product."
+                }
+              },
+              "propertyOrdering": ["title", "quantity"]
+            }
+          }
+        }
       }),
     );
 
@@ -61,6 +85,28 @@ class ProductRepository {
       throw Exception(AppStrings.kAnalyzeOrderError);
     }
 
-    return List<OrderItem>.empty();
+    var jsonArray = jsonDecode(response.body)['candidates'][0]['content']["parts"][0]["text"];
+    List<OrderItem> orderItemList = [];
+
+    for (var item in jsonDecode(jsonArray)) {
+      var isProduct = false;
+      var price = -1.0;
+      for (var product in productList) {
+        if (product.title.toLowerCase() == item['title'].toString().toLowerCase()) {
+          isProduct = true;
+          price = product.price;
+        }
+      }
+
+      var orderItem = OrderItem(
+        title: item['title'] as String,
+        quantity: item['quantity'] as int,
+        price: price,
+        isProduct: isProduct,
+      );
+      orderItemList.add(orderItem);
+    }
+
+    return orderItemList;
   }
 }

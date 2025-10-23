@@ -22,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   late HomeBloc _homeBloc;
   late TabController _tabController;
   late TextEditingController _textFilterController;
+  late TextEditingController _orderPromptController;
 
   // ignore: unused_field
   late Timer _debounce;
@@ -36,12 +37,22 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
     _textFilterController = TextEditingController();
     _textFilterController.addListener(_onQueryChanged);
+
+    _orderPromptController = TextEditingController();
   }
 
   @override
   void dispose() {
     _homeBloc.close();
     super.dispose();
+  }
+
+  void _analyzeOrder() {
+    _homeBloc.add(
+      AnalyzeOrder(
+        _orderPromptController.text,
+      ),
+    );
   }
 
   void _fetchProducts() {
@@ -115,7 +126,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       productList: state.productList,
                     ),
                     OrderTab(
+                      promptTextController: _orderPromptController,
                       orderList: state.orderList,
+                      analyzeOrderCallback: _analyzeOrder,
                     ),
                   ],
                 );

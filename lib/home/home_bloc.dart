@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:product_ai_flutter/models/order_item.dart';
 import 'package:product_ai_flutter/repositories/product_repository.dart';
-import 'package:product_ai_flutter/resources/app_strings.dart';
 import 'home_event.dart';
 import 'home_state.dart';
 
@@ -26,7 +25,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       } catch (e) {
         emit(
           HomeError(
-            error: AppStrings.kLoadProductsError,
+            error: e.toString().substring(11),
           ),
         );
       }
@@ -46,7 +45,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       } catch (e) {
         emit(
           HomeError(
-            error: AppStrings.kAnalyzeOrderError,
+            error: e.toString().substring(11),
           ),
         );
       }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:product_ai_flutter/resources/app_colors.dart';
 import 'package:product_ai_flutter/resources/app_strings.dart';
+import 'package:product_ai_flutter/resources/app_text_styles.dart';
 
 class ProductSearchBar extends StatelessWidget {
   final TextEditingController queryTextController;
@@ -38,12 +39,12 @@ class ProductSearchBar extends StatelessWidget {
             Flexible(
               child: TextField(
                 controller: queryTextController,
-                //style: AppTextStyles.kSearchBarTextStyle,
+                style: AppTextStyles.kSearchBarTextStyle,
                 decoration: InputDecoration(
                   isDense: true,
                   border: InputBorder.none,
                   hintText: AppStrings.kSearchProductsHint,
-                  //hintStyle: AppTextStyles.kSearchBarHintStyle,
+                  hintStyle: AppTextStyles.kSearchBarHintStyle,
                 ),
               ),
             ),
