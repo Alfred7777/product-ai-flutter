@@ -14,9 +14,13 @@ A mobile application built with Flutter. Integration with product API and simple
 ### Google API Key
 
 Google API Key for Gemini API access should be put in project config file: 
-> config/app_config.json
+``` 
+config/app_config.json
+```
 Example file is provided in repository:
-> config/app_config.example.json
+```
+config/app_config.example.json
+```
 
 ### Installation
 
